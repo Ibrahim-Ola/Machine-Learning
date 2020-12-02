@@ -1,0 +1,145 @@
+---
+title: "Machine Learning for Beginners (10 Mins. Read)"
+author: "Ibrahim Olalekan Alabi (alabi.ibrahim@zacrac.com)"
+date: "null"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This article is intended to serve as a guide for anyone interested in exploring the fascinating field of Machine Learning (ML) but have no clue where to begin. In this article, I give some basic concepts which are incumbent on every beginner to understand before taking a deep dive into ML. Grab a coffee and let's get started!
+
+# Introduction to Machine Learning 
+
+Today, almost every department in academia wants to integrate ML into their researches. In the business  world, the demand for ML experts can never be overemphasized. Why is ML highly spoken of? The simple answer is, data is available more than ever before and we want to make sense of those data. ML is really just about *making decisions based on algorithms built (trained) with data*. Over the years, ML algorithms have achieved great success in a wide variety of fields. Its success stories include disease diagnostics, image recognition, self-driving cars, spam detectors, handwritten digit recognition, to mention but a few.
+
+The first and most important aspect of any machine learning task is the *dataset* ($\mathcal{D}_n$), where $n$ represents the number of observations. The dataset is divided into:
+
+* The *outcome* ($Y$) we are interested in predicting, also known as the *dependent variable* and
+*	The *feature(s)* ($X_i$'s) which will be used for predicting the outcome, also known as *independent variable(s)*.
+
+The ultimate goal of ML is to estimate (learn) the relationship pattern between the feature(s) and the outcome variable using some algorithm/mathematical mapping ($f: \mathcal{X} \to \mathcal{Y}$) such that when we feed the algorithm the independent variable(s), it produces a prediction of the unknown outcome
+
+# Machine Learning Algorithms
+
+At the very basic level, ML algorithms are of two forms:
+
+* **Supervised Learning**: this refers to tasks where we have an outcome to predict. That is, every observation of the features has a corresponding outcome. An example of a supervised learning task is predicting customers' churn based on some influencing features.
+	 
+* **Unsupervised Learning**: this refers to tasks where we have no outcome to predict.  Here, rather than predict an outcome, we seek to understand the relationship between the features or between the observations or to detect anomalous observations. Considering the example above, we assume the churn variable does not exist and we either understand the relationship between the features or between the customers based on the features. 
+
+It is worth noting that a variable can either be categorical or continuous. For now, let's focus on the nature of the outcome variable. In *Supervised Learning* parlance, if the outcome variable is categorical, we have a *classification* task and if continuous, we are in the presence of a *regression* task. Categorical implies that the variable is made of distinct categories (e.g. gender has two categories: Male and Female) and continuous implies that the variable is measured (e.g. salary). For the rest of this article, we will focus on *Supervised Learning* tasks.
+
+# Train and Test Sets
+
+For the algorithm to learn the relationship pattern between the feature(s) and the outcome variable, it has to be exposed to examples. The dataset containing the examples for training a learning machine is called the *train set* ($\mathcal{D}^{tr}$). On the other hand, the accuracy of an algorithm is measured on how well it predicts the outcome of observations it has not seen before. The dataset containing the observations not used in training the ML algorithm is called the *test set* ($\mathcal{D}^{te}$). So in practice, we divide our dataset into train and test sets, train the algorithm on the train set and evaluate its performance on the test set. 
+
+# Performance Evaluation
+
+Each time we estimate the true outcome ($Y$) from a trained ML algorithm ($f(X)$), the discrepancy between the observed and predicted (might be zero especially for classification tasks) must be quantified. The great question is, how do we quantify this discrepancy? This brings the notion of **loss function**. Loss Function $\mathcal{L} (\cdot,\cdot)$ is a bivariate function that quantifies the loss (error) we sustain from predicting $Y$ with $f(X)$. Put another way, **loss fuction** quantifies how close the prediction $f(X)$ is to the ground truth $Y$.
+
+* Regression Loss Function
+
+$$
+\mathcal{L} (Y,f(X)) = (Y - f(X))^2
+$$
+This is popularly known as the *squared error loss* and it is simply the square of the difference between the observed and the predicted values. The loss is squared so that they do not cancel out when quantified over the entire dataset.
+
+* Classification Loss Function
+
+$$
+\mathcal{L} (Y,f(X)) = \mathbb{I}(Y \neq f(X)) 
+$$
+The function on the right-hand side above is an indicator function that returns 1 if the predicted and the observed values are different and zero otherwise. In practice, it is known as *zero-one loss*. The idea here is that loss is only incurred when our algorithm  misclassifies an observation.
+
+It is worth noting that the *loss function* as defined above corresponds to a single observation. However, in practice, we want to quantify the loss over the entire dataset and this is where the notion of **empirical risk** comes in. Loss quantified over the entire dataset is called the *empirical risk*. Our goal in ML is to develop an algorithm such that the *empirical risk* is as minimum as possible. *Empirical risk* is also called the *cost function* or the *objective function* we want to minimize.
+
+* Empirical Risk
+
+$$
+\widehat{R}_n(f) = \frac{1}{n}\sum_{i=1}^n{\mathcal{L}(Y_i, f(X_i))}
+$$
+In regression sense, $\widehat{R}_n(f)$ is the mean square error (mean of the squared error loss) and in classification sense, it is (1-accuracy).
+
+$$
+\text{Accuracy} = \frac{\text{Number of correct prediction}}{\text{Total number of predictions}}
+$$
+
+It turns out that the empirical risk in the classification sense is simply the *misclassification probability* ($\mathbb{P}[Y \neq f(X)]$). Take an example of binary classification where our interest is classifying whether a patient is diabetic (1) or not diabetic (0). The result obtained is given below
+
+```{r, echo=FALSE}
+pacman::p_load(class, caret, dplyr, MLmetrics)
+patient <- c(1:10); True_Class <- c(1,0,0,0,1,0,0,1,0,0)
+Predicted_Class <- c(0,0,0,0,1,0,0,1,0,1); loss <- (True_Class - Predicted_Class)^2
+tableC <- data.frame(Patient = patient, `True Class` = True_Class, 
+                     `Predicted Class` = Predicted_Class, Loss = loss)
+#knitr::kable(tableC, caption = '\\label{tab01}Classification Exam', align = 'clcc')
+```
+
+| Patient | $Y$ | $f(X)$ | loss |
+|---------| --| ---| ---|
+| 1| 1| 0 | 1 |
+| 2| 0| 1 | 0 |
+| 3| 0| 0 | 0 |
+| 4| 0| 0 | 0 |
+| 5| 1| 1 | 0 |
+| 6| 0| 0 | 0 |
+| 7| 0| 0 | 0 |
+| 8| 1| 1 | 0 |
+| 9| 0| 0 | 0 |
+| 10| 0| 1 | 1 |
+
+In this case 
+
+$$
+\widehat{R}_n(f) = \frac{1}{10} \cdot 2 = 0.2
+$$
+
+To get the misclassification probability, we simply divide the number of incorrectly classified observations by the total number of observations in the sample which is (2/10 = 0.2). In probability language:
+
+$$
+\mathbb{P}[Y \neq f(X)] = \frac{1}{10} \cdot 2 = 0.2
+$$
+With this example, we have verified that ($\widehat{R}_n(f) = \mathbb{P}[Y \neq f(X)]$) in the classification sense. It is therefore intuitive to seek a learning machine with as minimum as possible misclassification probability (empirical risk).
+
+The way the empirical risk is minimized in practice differs from algorithm to algorithm. Exploring empirical  risk minimization will open up doors to concepts like bias-variance tradeoff, underfitting, overfitting, resampling et cetera. These concepts will be explored in future articles, for now, let us build our first learning machine in R. We will explore a binary classification task using k-Nearest Neighbour learning machine. The popular iris dataset is used which is freely available in R and our task is to predict if an observation belongs to *versicolor* or *virginica* class. 
+
+```{r}
+pacman::p_load(class, caret, dplyr, MLmetrics) # load libraries
+data("iris") # getting the dataset
+data <- iris; data$Species <- as.character(data$Species) 
+practice_data <- data %>%
+  filter(Species == "versicolor" | Species == "virginica") # filtering
+
+practice_data$Species <- as.factor(practice_data$Species)
+
+dimension <- dim(practice_data) # getting the dimension
+n <- nrow(practice_data) # number of rows
+
+## Train Test Split (70% - 30%)
+set.seed(1) # seed for reproducible results
+id <- sample(2, n, replace = TRUE, prob = c(0.70, 0.30)) # random sample of indices
+train_set <- practice_data[id==1,]
+test_set <- practice_data[id==2,]
+
+## Data Preparation
+Y_train <- train_set[, ncol(train_set)]
+Y_test <- test_set[, ncol(test_set)]
+
+X_train <- train_set[, -ncol(train_set)]
+X_test <- test_set[, -ncol(test_set)]
+
+## Training kNN Learning Machine
+Y_kNN <- knn(X_train, X_test, Y_train)
+
+## Performance Evaluation
+table(Y_kNN, Y_test)
+
+Accuracy(Y_kNN, Y_test)
+```
+This is a simple demonstration of the concepts discussed above. We got our data, did the train-test split, developed a kNN algorithm on the train set, evaluated it on the test set, and finally compute the accuracy of the model. We achieved an overall accuracy of 93.75% on our test set, this means our algorithm has correctly classified 93.75% of the observation in the test set. Put another way, the probability of our machine correctly classifying an observation it has not seen before is 0.9375. Another convenient interpretation would be; the probability of our machine misclassifying an observation it has not seen before is 0.0625 (1 - 0.9375). 
+The details of kNN have been left out because it is not the point of focus in this article. 
